@@ -1,6 +1,6 @@
 #include "players.hh"
 
-const int MovePercentage = 80;
+const int digPercentage = 80;
 
 int planSamurai(GameInfo &info) {
   if (info.step == 0) initFieldMap(info);
@@ -13,11 +13,11 @@ int planSamurai(GameInfo &info) {
     int dir = directionOf(myCell.position, n->position);
     bool noHole = noHolesIn(n->position, info);
     if (noAgentsIn(n->position, info)) {
-      if (rand()%100 < MovePercentage && noHole) {
-	      plan = dir;
+      if (rand()%100 < digPercentage && noHole) {
+	      plan = dir+8;
 	      break;
       } else if (noHole) {
-	      plan = dir+8;
+	      plan = dir;
 	      break;
       } else {
         plan = dir+16;

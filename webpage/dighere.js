@@ -403,12 +403,12 @@ class GameState {
     } else {
       this.stepNumber = prevGameState.stepNumber + 1;
       function invalidAction(role, plan, targetPos, prev) {
-	if (plan < -1 || plan >= 24)
-	  return "Plan " + plan + " out of range";
+	      if (plan < -1 || plan >= 24)
+	        return "Plan " + plan + " out of range";
         if (targetPos === null)
-	  return "Target cell is out of the field";
-	if (role < 2 && plan%2 != 0)
-	  return "Diagonal move by a samurai";
+	        return "Target cell is out of the field";
+	      if (role < 2 && plan%2 != 0)
+	        return "Diagonal move by a samurai";
         if (role >= 2 && plan >= 8)
 	  return "Dig by a dog";
 	if (plan >= 0) {
@@ -422,6 +422,7 @@ class GameState {
 	}
 	return false;
       }
+
       // Copy cells, gold and hole info from the previous state
       this.goldRemaining = prevGameState.goldRemaining;
       this.holes = Array.from(prevGameState.holes);
@@ -542,6 +543,7 @@ class GameState {
         if (dug != null) {
           if (this.agents.some(b => b.at == dug)) {
             // Position to be dug out is occupied by another agent
+            console.log("masup udah ditempatin");
             this.agents[a].action = -1;
             continue;
           }
@@ -1579,6 +1581,7 @@ function applyGameLog(log) {
     }
   }
   let step = 0;
+  console.log(log);
   log.plays.forEach(p => {
     const state = new GameState(stepRecords[step], p.plans);
     if (p.step != step) {

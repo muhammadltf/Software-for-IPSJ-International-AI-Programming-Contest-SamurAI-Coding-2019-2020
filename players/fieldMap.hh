@@ -2,6 +2,7 @@
 #include <vector>
 #include <stack>
 #include <limits>
+#include <unordered_set>
 
 struct CellInfo {
   Cell position;
@@ -19,6 +20,8 @@ extern CellInfo **cells;
 extern void initFieldMap(GameInfo &info);
 
 extern int samuraiDistance(CellInfo *from, CellInfo *to, set <Cell> &holes);
+
+extern int customSamuraiDistance(int distance, CellInfo *from, CellInfo *to, set <Cell> &holes, unordered_set <CellInfo*> visit);
 
 inline int directionOf(Cell &from, Cell &to) {
   static int directions[] = {3, 2, 1, 4, -1, 0, 5, 6, 7};

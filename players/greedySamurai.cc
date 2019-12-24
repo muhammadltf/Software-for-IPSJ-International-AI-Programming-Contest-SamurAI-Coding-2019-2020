@@ -18,10 +18,9 @@ int planSamurai(GameInfo &info) {
   for (auto &n: myCell.fourNeighbors) {
     if (noAgentsIn(n->position, info)) {
       auto treasure = info.revealedTreasure.find(n->position);
-      if (treasure != info.revealedTreasure.end() &&
-	  treasure->second > maxTreasure) {
-	digCand = n->position;
-	maxTreasure = treasure->second;
+      if (treasure != info.revealedTreasure.end() && treasure->second > maxTreasure) { // second = value nya
+	      digCand = n->position;
+	      maxTreasure = treasure->second;
       }
     }
   }
@@ -32,26 +31,23 @@ int planSamurai(GameInfo &info) {
     int closest = numeric_limits<int>::max();
     for (auto n: myCell.fourNeighbors) {
       for (auto g: info.revealedTreasure) {
-	if (noAgentsIn(n->position, info)) {
-	  int dist =
-	    samuraiDistance(n, &cells[g.first.x][g.first.y], info.holes);
-	  if (dist <= closest) {
-	    if (dist != closest) {
-	      candidates.clear();
-	      closest = dist;
-	    }
-	    candidates.push_back(pair<Cell, int>(n->position, g.second));
-	  }
-	}
+	      if (noAgentsIn(n->position, info)) {
+	        int dist = samuraiDistance(n, &cells[g.first.x][g.first.y], info.holes);
+	        if (dist <= closest) {
+	          if (dist != closest) {
+	            candidates.clear();
+	            closest = dist;
+	          }
+	        candidates.push_back(pair<Cell, int>(n->position, g.second));
+	        }
+	      }
       }
     }
     if (!candidates.empty()) {
-      sort(candidates.begin(), candidates.end(),
-	   [](auto c1, auto c2) { return c1.second > c2.second; });
+      sort(candidates.begin(), candidates.end(),[](auto c1, auto c2) { return c1.second > c2.second; });
       for (auto c: candidates) {
-	int plan = directionOf(pos, c.first) +
-	  (info.holes.count(c.first) == 0 ? 0 : 16);
-	if (plan != avoidPlan) return plan;
+	      int plan = directionOf(pos, c.first) + (info.holes.count(c.first) == 0 ? 0 : 16);
+	      if (plan != avoidPlan) return plan;
       }
     }
   }
@@ -65,12 +61,11 @@ int planSamurai(GameInfo &info) {
     if (noAgentsIn(n->position, info)) {
       int dist = samuraiDistance(n, &dogPosInfo, info.holes);
       if (dist < closest) {
-	int plan  = directionOf(pos, n->position) +
-	  (info.holes.count(n->position) == 0 ? 0 : 16);;
-	if (plan != avoidPlan) {
-	  bestPlan = plan;
-	  closest = dist;
-	}
+	      int plan  = directionOf(pos, n->position) + (info.holes.count(n->position) == 0 ? 0 : 16);;
+	      if (plan != avoidPlan) {
+	        bestPlan = plan;
+	        closest = dist;
+	      }
       }
     }
   }

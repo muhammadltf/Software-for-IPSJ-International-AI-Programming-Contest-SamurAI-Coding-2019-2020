@@ -35,15 +35,25 @@ int planDog(GameInfo &info) {
   
   Cell pos = info.positions[id];
   CellInfo &myCell = cells[pos.x][pos.y];
+
+  Cell samuraiPos = info.positions[id - 2];
+  CellInfo *samuraiCell = &cells[samuraiPos.x][samuraiPos.y];
+
   vector <CellInfo *> moveCandidates;
+  int avoidSamurai[] = {-1, -1};
   for (CellInfo *n: myCell.eightNeighbors) {
+    if (n->position == samuraiCell->position){
+      int dirToSamurai = directionOf(n->position, samuraiCell->position);
+      avoidSamurai[0] = (dirToSamurai+1) % 8;
+      avoidSamurai[1] = (dirToSamurai-1) < 0 ? 7 : (dirToSamurai-1); 
+    }
+
     n->inspected = true;
     if (noAgentsIn(n->position, info) && noHolesIn(n->position, info)) {
       moveCandidates.push_back(n);
     }
   }
-  Cell samuraiPos = info.positions[id - 2];
-  CellInfo *samuraiCell = &cells[samuraiPos.x][samuraiPos.y];
+
   Cell oppPos = info.positions[1 - id%2];
   CellInfo *oppCell = &cells[oppPos.x][oppPos.y];
   if (info.revealedTreasure.find(pos) != info.revealedTreasure.end()) {
@@ -93,7 +103,7 @@ int planDog(GameInfo &info) {
     int gathered = gatheredInfo(StrollDepth, *c, info);
     if (gathered >= maxInfo) {
       int plan = directionOf(pos, c->position);
-      if (plan != avoidPlan) {
+      if (plan != avoidPlan && plan != avoidSamurai[0] && plan != avoidSamurai[1]) {
 	      if (gathered > maxInfo) {
 	        bestPlans.clear();
 	        maxInfo = gathered;
@@ -102,5 +112,6 @@ int planDog(GameInfo &info) {
       }
     }
   }
+  cerr << "AVOID SAMURAI: #1 " + to_string(avoidSamurai[0]) + " #2 " + to_string(avoidSamurai[1]) << endl;
   return bestPlans[rand()%bestPlans.size()];
 }
