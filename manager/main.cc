@@ -5,6 +5,12 @@
 #include <unistd.h>
 #include <signal.h>
 #include "playgame.hh"
+#include <signal.h>
+
+/* Catch Signal Handler functio */
+void signal_callback_handler(int signum){
+  cerr << "Caught signal SIGPIPE " + to_string(signum) << endl;
+}
 
 void openErrorCheck(ifstream &s, const string &fileName, const string &kind) {
   if (s.fail()) {
