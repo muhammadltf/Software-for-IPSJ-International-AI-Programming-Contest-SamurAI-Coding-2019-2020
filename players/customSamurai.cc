@@ -43,7 +43,7 @@ int planSamurai(GameInfo &info) {
     int closest = numeric_limits<int>::max();
     Cell enemyPos = id == 0 ? info.positions[1] : info.positions[0];
     CellInfo &enemyPosInfo = cells[enemyPos.x][enemyPos.y];
-    int playerToEnemyDist = customSamuraiDistance(0, &myCell, &enemyPosInfo, info.holes, unordered_set <CellInfo*>());
+    int playerToEnemyDist = customSamuraiDistance(&myCell, &enemyPosInfo, info.holes, unordered_set < CellInfo*> ());
 
     // if a bunch of treasures are close, aim for the center cell also
     map<Cell, int> extendedTreasures;
@@ -76,10 +76,11 @@ int planSamurai(GameInfo &info) {
       for (auto n: myCell.fourNeighbors) { 
         if (noAgentsIn(n->position, info)) {
           unordered_set <CellInfo*> visited;
-	        int dist = customSamuraiDistance(0, n, &cells[g.first.x][g.first.y], info.holes, visited);
+	        int dist = customSamuraiDistance(n, &cells[g.first.x][g.first.y], info.holes, visited) + 1;
               
           //Calculate enemy distance to current treasure, skip if enemy is closer
-          int enemyDist = customSamuraiDistance(0, &enemyPosInfo, &cells[g.first.x][g.first.y], info.holes, visited);
+          int enemyDist = customSamuraiDistance(&enemyPosInfo, &cells[g.first.x][g.first.y], info.holes, visited);
+          // std::cerr << "JARAK ENEMY! (" + to_string(enemyPosInfo.position.x) + "," + to_string(enemyPosInfo.position.y) + ") distance: " + to_string(enemyDist) << endl;
           if (enemyDist < dist) {
             if (dist < oldDist){
               localClosest = pair<Cell, int>(n->position, g.second);
@@ -91,21 +92,20 @@ int planSamurai(GameInfo &info) {
           }
 
           if (dist <= closest) {
-            std::cerr << to_string(g.first.x) + "," + to_string(g.first.y) + ";" + to_string(n->position.x) + "," + to_string(n->position.y) + ";" + to_string(dist) << endl;
-
             if (dist != closest) {
 	            candidates.clear();
 	            closest = dist;
 	          }
 
             //Replace original candidate with candidate that further our distance with enemy
-            int newPlayerToEnemyDist = customSamuraiDistance(0, n, &enemyPosInfo, info.holes, visited);
+            int newPlayerToEnemyDist = customSamuraiDistance(n, &enemyPosInfo, info.holes, visited);
             if (newPlayerToEnemyDist > playerToEnemyDist && info.revealedTreasure.size() > 1) {
               std::cerr << "Move away from enemy! Original dist= " + to_string(playerToEnemyDist) + ", New dist= " + to_string(newPlayerToEnemyDist) << endl;
               playerToEnemyDist = newPlayerToEnemyDist;
               candidates.clear();
             }
 
+            std::cerr << to_string(g.first.x) + "," + to_string(g.first.y) + ";" + to_string(n->position.x) + "," + to_string(n->position.y) + ";" + to_string(dist) << endl;
 	          candidates.push_back(pair<Cell, int>(n->position, g.second)); //TEMP, revert dist to g.second
 	        }
 	      }
@@ -115,8 +115,7 @@ int planSamurai(GameInfo &info) {
         candidates.push_back(localClosest);
       }
 
-      //TODO cobain dulu semua track, cc-release bermasalah
-      //kk-field-3 bermasalah
+      //TODO kalo menang semua, urut dari yang paling gede, adu sama jalur lawan
 
       std::cerr << "" << endl;
     }

@@ -55,104 +55,58 @@ int samuraiDistance(CellInfo *from, CellInfo *to, set <Cell> &holes) {
   }
 }
 
-
-//DONE, tinggal rapihin kodingan
-//TODO, cari kesalahan di cc-godown, kk-field-4
-//TAMBAH AVOID PLAN KALO NABRAK ANJING
-int customSamuraiDistance(int distance, CellInfo *from, CellInfo *to, set <Cell> &holes, unordered_set <CellInfo*> visit) {
-  // stack<CellInfo*> c;
-  // stack<CellInfo*> nc;
-  // c.push(from);
-  // stack<CellInfo*> *candidates = &c;
-  // stack<CellInfo*> *nextCandidates = &nc;
-  // int bestDistance = numeric_limits<int>::max();
-  
-  // for (int dist = 1; ; dist++) {
-  //   while (!candidates->empty()) {
-  //     CellInfo *currentCandidate = candidates->top();
-  //     candidates->pop();
-      
-  //     if(currentCandidate == to){
-  //       if(dist < bestDistance){
-  //         bestDistance = dist;
-  //         break;
-  //       }
-  //     }
-
-  //     if (visit.count(currentCandidate) == 0) {
-  //       visit.insert(currentCandidate);
-        
-  //       for (auto n: from->fourNeighbors) {
-  //         nextCandidates->push(n);
-  //       }
-  //     }
-  //   }
-
-  //   candidates = nextCandidates;
-  //   if(nextCandidates->empty()){
-  //     break;
-  //   } else {
-  //     while (!nextCandidates->empty()) {
-  //       nextCandidates->pop();
-  //     }
-  //   }
-  // }
-
-  // return bestDistance;
-
-  // stack <CellInfo*> next0;
-  // stack <CellInfo*> next1;
-  // stack <CellInfo*> next2;
-  // next0.push(from);
-  // stack <CellInfo*> *np0 = &next0;
-  // stack <CellInfo*> *np1 = &next1;
-  // stack <CellInfo*> *np2 = &next2;
-  // unordered_set <CellInfo*> visited;
-  // int bestDistance = numeric_limits<int>::max();
-
-  // for (int dist = 1; ; dist++) {
-  //   while (!np0->empty()) {
-  //     CellInfo *c = np0->top(); np0->pop();
-  //     if (visited.count(c) == 0) {
-  //       visited.insert(c);
-        
-  //       for (auto n: c->fourNeighbors) {
-  //         if (n == to){
-  //           // if(dist < bestDistance){
-  //           //   bestDistance = dist;
-  //           // }
-  //           return dist;
-  //         }
-
-  //         if (holes.count(n->position) == 0) {
-  //           np1->push(n);
-  //         } else {
-  //           np2->push(n);
-  //         }
-  //       }
-  //     }
-  //   }
-  //   np0 = np1; np1 = np2; np2 = np0;
-  // }
-
-  // return bestDistance;
-
-  int baseDistance = abs(from->position.x - to->position.x) + abs(from->position.y - to->position.y);
-  int holeCounter = 0;
+int customSamuraiDistance(CellInfo *from, CellInfo *to, set <Cell> &holes, unordered_set <CellInfo*> visit) {
+  stack <pair<CellInfo*, int>> next0;
+  if (holes.count(from->position) != 0) {
+    next0.push(pair<CellInfo*, int>(from, 1));
+  } else {
+    next0.push(pair<CellInfo*, int>(from, 0));
+  }
+  stack <pair<CellInfo*, int>> *np0 = &next0;
 
   int lowX = from->position.x < to->position.x ? from->position.x : to->position.x;
   int highX = from->position.x > to->position.x ? from->position.x : to->position.x;
   int lowY = from->position.y < to->position.y ? from->position.y : to->position.y;
   int highY = from->position.y > to->position.y ? from->position.y : to->position.y;
-  
-  for (int indX = lowX; indX <= highX; indX++) {
-    for (int indY = lowY; indY <= highY; indY++){
-      CellInfo &c = cells[indX][indY];
-      if (holes.count(c.position) != 0){
-        holeCounter++;
+
+  int bestDistance = numeric_limits<int>::max();
+
+  while (!np0->empty()) {
+    pair<CellInfo*, int> c = np0->top(); np0->pop();
+    // std::cerr << "ISI STACK: " + to_string(c.first->position.x) + "," + to_string(c.first->position.y) + " | DISTANCE: " + to_string(c.second) << endl;
+    if (c.second >= bestDistance) {
+      continue;
+    }
+
+    visit.insert(c.first);
+    if (c.first->position == to->position) {
+      // std::cerr << "KETEMU!! : " + to_string(c.first->position.x) + "," + to_string(c.first->position.y) + " | DISTANCE: " + to_string(c.second) << endl;
+      if (c.second < bestDistance) {
+        bestDistance = c.second;
+      }
+      continue;
+    }
+
+    int currentDistance = c.second;
+    currentDistance++;
+
+    for (auto n: c.first->fourNeighbors){
+      if (visit.count(n) != 0 || n->position.x < lowX || n->position.x > highX || n->position.y < lowY || n->position.y > highY) {
+        // std::cerr << "VISITED!!" << endl;
+        continue;
+      } else {
+        // std::cerr << "BELOM VISIT DONG!!" << endl;
+        if (holes.count(n->position) != 0) {
+          currentDistance++;
+        } 
+
+        np0->push(pair<CellInfo*, int>(n, currentDistance));
       }
     }
   }
-  
-  return baseDistance + holeCounter;
+
+  // std::cerr << "TITIK EKSTRIM (LOWX, HIGHX, LOWY, HIGHY): " + to_string(lowX) + "," + to_string(highX) + "," + to_string(lowY) + "," + to_string(highY) << endl;
+  // std::cerr << "DARI: " + to_string(from->position.x) + "," + to_string(from->position.y) + " | KE: " + to_string(to->position.x) + "," + to_string(to->position.y) << endl;
+  // std::cerr << "BEST DISTANCE: " + to_string(bestDistance) << endl;
+  return bestDistance;
 }
