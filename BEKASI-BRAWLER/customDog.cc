@@ -31,29 +31,12 @@ int planDog(GameInfo &info) {
   int avoidPlan =
     info.plans[id] != info.actions[id] ? // should be avoided
     info.plans[id] : -2;		  // with certain probability
-
-  //Repeat failed plan
-  // if (info.step > 1 && info.plans[id] != info.actions[id]) {
-  //   failedPlanCounter++;
-
-  //   if(failedPlanCounter > 1) {
-  //     failedPlanCounter = 0;
-  //     avoidPlan = info.plans[id];
-  //   } else {
-  //     return info.plans[id];
-  //   }
-  // }
-
-  // failedPlanCounter = 0;
   
   Cell pos = info.positions[id];
   CellInfo &myCell = cells[pos.x][pos.y];
 
   Cell samuraiPos = info.positions[id - 2];
   CellInfo *samuraiCell = &cells[samuraiPos.x][samuraiPos.y];
-
-  Cell oppPos = info.positions[1 - id%2];
-  CellInfo *oppCell = &cells[oppPos.x][oppPos.y];
 
   vector <CellInfo *> moveCandidates;
 
@@ -71,6 +54,8 @@ int planDog(GameInfo &info) {
     }
   }
 
+  Cell oppPos = info.positions[1 - id%2];
+  CellInfo *oppCell = &cells[oppPos.x][oppPos.y];
   if (info.revealedTreasure.find(pos) != info.revealedTreasure.end()) {
     // The dog is in the cell with known gold
     bool friendCanDig = false;
@@ -105,10 +90,7 @@ int planDog(GameInfo &info) {
   if (largestDiff >= 0) {
     // If the friend samurai is closer to the treasure cell
     // go there (and bark).
-    int plan = directionOf(pos,candidate);
-    if (plan != avoidPlan) {
-          return plan;
-    }
+    return directionOf(pos, candidate);
   } else if (largestDiff > WaitChanceThresh) {
     // Else if the distance difference is not large,
     // stand still waiting for a next chance.
@@ -117,19 +99,17 @@ int planDog(GameInfo &info) {
 
   //move to known gold taro sini
   //GO TO BIGGEST KNOWN GOLD (CC-RELEASE)
-  // EDIT JANUARY 3rd, MOVE TO OPPONENT's CLOSEST GOLD
-  int lowestOppToTreasureDist = numeric_limits<int>::max();
+  int biggestTreasure = 0;
   int bestDistance = numeric_limits<int>::max();
   int bestPlan = -1;
   for(auto t: info.revealedTreasure) {
     CellInfo* treasure = &cells[t.first.x][t.first.y];
     int samuraiDist = customSamuraiDistance(samuraiCell, treasure, info.holes);
-    int oppToTreasureDist = customSamuraiDistance(oppCell, treasure, info.holes);
 
-    if (oppToTreasureDist <= lowestOppToTreasureDist  && samuraiDist > 2 && !(treasure->position == pos)) {
-      // cerr << "LOWEST DISTANCE ENEMY-TREASURE!! " + to_string(t.second) + " | " + to_string(t.first.x) + "," + to_string(t.first.y) << endl;
-      lowestOppToTreasureDist = oppToTreasureDist;
-      bestDistance = numeric_limits<int>::max();
+    if (t.second >= biggestTreasure && samuraiDist > 2 && !(treasure->position == pos)) {
+      // cerr << "BIGGEST TREASURE!! " + to_string(t.second) + " | " + to_string(t.first.x) + "," + to_string(t.first.y) << endl;
+      biggestTreasure = t.second;
+      bestDistance = 0;
 
       for(auto n: myCell.eightNeighbors) {
         int dist = customSamuraiDistance(n, treasure, info.holes) + 1;

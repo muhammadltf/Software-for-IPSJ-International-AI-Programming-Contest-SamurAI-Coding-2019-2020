@@ -102,5 +102,13 @@ int planDog(GameInfo &info) {
       }
     }
   }
+
+  if(bestPlans.empty()) {
+    for (auto n: myCell.eightNeighbors){
+      int direction = directionOf(myCell.position, n->position);
+      bestPlans.push_back(direction);
+    }
+    
+  }
   return bestPlans[rand()%bestPlans.size()];
 }

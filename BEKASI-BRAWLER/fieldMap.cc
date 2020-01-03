@@ -74,11 +74,7 @@ int customSamuraiDistance(CellInfo *from, CellInfo *to, set <Cell> &holes) {
 
   while (!np0->empty()) {
     pair<CellInfo*, int> c = np0->top(); np0->pop();
-    
-    // if(from->position.x == 4 && from->position.y == 5 && to->position.x == 2 && to->position.y == 6){
-    //   std::cerr << "ISI STACK: " + to_string(c.first->position.x) + "," + to_string(c.first->position.y) + " | DISTANCE: " + to_string(c.second) << endl;
-    // }
-    
+    // std::cerr << "ISI STACK: " + to_string(c.first->position.x) + "," + to_string(c.first->position.y) + " | DISTANCE: " + to_string(c.second) << endl;
     if (c.second >= bestDistance) {
       // visit.erase(c.first);
       continue;
@@ -93,20 +89,20 @@ int customSamuraiDistance(CellInfo *from, CellInfo *to, set <Cell> &holes) {
       continue;
     }
 
+    int currentDistance = c.second;
+    currentDistance++;
+
     for (auto n: c.first->fourNeighbors){
       if (visit.count(n) != 0 || n->position.x < lowX || n->position.x > highX || n->position.y < lowY || n->position.y > highY) {
         // std::cerr << "VISITED!!" << endl;
         continue;
       } else {
         // std::cerr << "BELOM VISIT DONG!!" << endl;
-        int calculatedDistance = c.second;
-        calculatedDistance++;
-        
         if (holes.count(n->position) != 0) {
-          calculatedDistance++;
+          currentDistance++;
         } 
 
-        np0->push(pair<CellInfo*, int>(n,calculatedDistance));
+        np0->push(pair<CellInfo*, int>(n, currentDistance));
       }
     }
   }

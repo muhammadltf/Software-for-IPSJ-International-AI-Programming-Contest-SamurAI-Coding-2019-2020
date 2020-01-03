@@ -96,9 +96,9 @@ int planSamurai(GameInfo &info) {
     // int oldDist = numeric_limits<int>::max();
 
     for (auto g: extendedTreasures) {
-      // if (!noAgentsIn(g.first, info)) {
-      //   continue;
-      // }
+      if (!noAgentsIn(g.first, info)) {
+        continue;
+      }
 
       for (auto n: myCell.fourNeighbors) { 
         if (noAgentsIn(n->position, info)) {
