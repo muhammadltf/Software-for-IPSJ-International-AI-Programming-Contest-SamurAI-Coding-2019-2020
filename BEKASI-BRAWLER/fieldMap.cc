@@ -74,42 +74,35 @@ int customSamuraiDistance(CellInfo *from, CellInfo *to, set <Cell> &holes) {
 
   while (!np0->empty()) {
     pair<CellInfo*, int> c = np0->top(); np0->pop();
-    // std::cerr << "ISI STACK: " + to_string(c.first->position.x) + "," + to_string(c.first->position.y) + " | DISTANCE: " + to_string(c.second) << endl;
+    
     if (c.second >= bestDistance) {
-      // visit.erase(c.first);
       continue;
     }
 
     visit.insert(c.first);
     if (c.first->position == to->position) {
-      // std::cerr << "KETEMU!! : " + to_string(c.first->position.x) + "," + to_string(c.first->position.y) + " | DISTANCE: " + to_string(c.second) << endl;
       if (c.second < bestDistance) {
         bestDistance = c.second;
       }
       continue;
     }
 
-    int currentDistance = c.second;
-    currentDistance++;
-
     for (auto n: c.first->fourNeighbors){
       if (visit.count(n) != 0 || n->position.x < lowX || n->position.x > highX || n->position.y < lowY || n->position.y > highY) {
-        // std::cerr << "VISITED!!" << endl;
         continue;
       } else {
-        // std::cerr << "BELOM VISIT DONG!!" << endl;
+        int calculatedDistance = c.second;
+        calculatedDistance++;
+        
         if (holes.count(n->position) != 0) {
-          currentDistance++;
+          calculatedDistance++;
         } 
 
-        np0->push(pair<CellInfo*, int>(n, currentDistance));
+        np0->push(pair<CellInfo*, int>(n,calculatedDistance));
       }
     }
   }
-
-  // std::cerr << "TITIK EKSTRIM (LOWX, HIGHX, LOWY, HIGHY): " + to_string(lowX) + "," + to_string(highX) + "," + to_string(lowY) + "," + to_string(highY) << endl;
-  // std::cerr << "DARI: " + to_string(from->position.x) + "," + to_string(from->position.y) + " | KE: " + to_string(to->position.x) + "," + to_string(to->position.y) << endl;
-  // std::cerr << "BEST DISTANCE: " + to_string(bestDistance) << endl;
+  
   return bestDistance;
 }
 
