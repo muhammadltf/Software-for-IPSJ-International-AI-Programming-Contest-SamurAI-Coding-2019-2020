@@ -2,7 +2,7 @@
 
 const int FailureAvoidPercentage = 70;
 const int WaitChanceThresh = -2;
-const int StrollDepth = 0;
+const int StrollDepth = 2;
 
 static int gatheredInfo(int depth, CellInfo &start, const GameInfo &info) {
   int gathered = 0;
@@ -25,12 +25,21 @@ static int gatheredInfo(int depth, CellInfo &start, const GameInfo &info) {
   return gathered + best;
 }
 
+int failedCounter;
+
 int planDog(GameInfo &info) {
   if (info.step == 0) initFieldMap(info);
   int id = info.id;
-  int avoidPlan =
-    info.plans[id] != info.actions[id] ? // should be avoided
-    info.plans[id] : -2;		  // with certain probability
+  int avoidPlan = -2;		  // with certain probability
+
+  if (info.step > 1 && info.plans[id] != info.actions[id]) {
+    if (failedCounter > 0){
+      failedCounter = 0;
+      avoidPlan = info.plans[id];
+    } else {
+      failedCounter++;
+    }
+  }
   
   Cell pos = info.positions[id];
   CellInfo &myCell = cells[pos.x][pos.y];
@@ -93,7 +102,7 @@ int planDog(GameInfo &info) {
     // go there (and bark).
     int plan = directionOf(pos,candidate);
     if (plan != avoidPlan) {
-          return plan;
+      return plan;
     }
   } else if (largestDiff > WaitChanceThresh) {
     // Else if the distance difference is not large,
@@ -110,11 +119,16 @@ int planDog(GameInfo &info) {
     int samuraiDist = customSamuraiDistance(samuraiCell, treasure, info.holes);
     int oppToTreasureDist = customSamuraiDistance(oppCell, treasure, info.holes);
 
-    if (oppToTreasureDist <= lowestOppToTreasureDist  && samuraiDist > 2 && !(treasure->position == pos)) {
+    if (oppToTreasureDist < samuraiDist && oppToTreasureDist <= lowestOppToTreasureDist  && samuraiDist > 1 && !(treasure->position == pos)) {
       lowestOppToTreasureDist = oppToTreasureDist;
       bestDistance = numeric_limits<int>::max();
 
       for(auto n: myCell.eightNeighbors) {
+        if(n->position == treasure->position) {
+          bestPlan = directionOf(myCell.position, n->position);
+          break;
+        }
+
         int dist = customSamuraiDistance(n, treasure, info.holes) + 1;
         if(dist < bestDistance && noHolesIn(n->position, info)) {
           bestDistance = dist;

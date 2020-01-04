@@ -87,8 +87,11 @@ int customSamuraiDistance(CellInfo *from, CellInfo *to, set <Cell> &holes) {
       continue;
     }
 
+    int marginX = abs(c.first->position.x - to->position.x);
+    int marginY = abs(c.first->position.y - to->position.y);
+
     for (auto n: c.first->fourNeighbors){
-      if (visit.count(n) != 0 || n->position.x < lowX || n->position.x > highX || n->position.y < lowY || n->position.y > highY) {
+      if (visit.count(n) != 0 || n->position.x < lowX || n->position.x > highX || n->position.y < lowY || n->position.y > highY || abs(n->position.x - to->position.x) > marginX || abs(n->position.y - to->position.y) > marginY) {
         continue;
       } else {
         int calculatedDistance = c.second;
@@ -96,8 +99,8 @@ int customSamuraiDistance(CellInfo *from, CellInfo *to, set <Cell> &holes) {
         
         if (holes.count(n->position) != 0) {
           calculatedDistance++;
-        } 
-
+        }
+        
         np0->push(pair<CellInfo*, int>(n,calculatedDistance));
       }
     }
