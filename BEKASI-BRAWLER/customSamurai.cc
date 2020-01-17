@@ -6,6 +6,7 @@
 map<Cell, int> countVisit;
 int failedPlanCounter;
 int dogStandStillCounter;
+set <Cell> forbiddenCells;
 
 int planSamurai(GameInfo &info) {
   if (info.step == 0) initFieldMap(info);
@@ -13,7 +14,6 @@ int planSamurai(GameInfo &info) {
   Cell pos = info.positions[id];
   CellInfo &myCell = cells[pos.x][pos.y];
 
-  set <Cell> forbiddenCells;
   if(countVisit.find(pos) != countVisit.end()){
     int countDtl = countVisit.find(pos)->second;
     countVisit.erase(pos);
@@ -116,7 +116,6 @@ int planSamurai(GameInfo &info) {
           smallestDistanceForEnemy.second = enemyDist;
         }
       }
-
       if(enemyStartPoint != &enemyPosInfo) {
         int oldDistance = enemyDistanceToTreasure.find(enemyStartPoint->position)->second;
         int newDistance = oldDistance + smallestDistanceForEnemy.second + 2;
@@ -140,7 +139,6 @@ int planSamurai(GameInfo &info) {
       for (auto n: myCell.fourNeighbors) { 
         if (noAgentsIn(n->position, info)) {
 	        int dist = customSamuraiDistance(n, &cells[g.first.x][g.first.y], info.holes) + 1;
-              
           //Calculate enemy distance to current treasure, skip if enemy is closer0
           int enemyDist = enemyDistanceToTreasure.find(g.first)->second;
           if (enemyDist < dist) {

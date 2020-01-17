@@ -74,7 +74,7 @@ int customSamuraiDistance(CellInfo *from, CellInfo *to, set <Cell> &holes) {
 
   while (!np0->empty()) {
     pair<CellInfo*, int> c = np0->top(); np0->pop();
-    
+    // std::cerr << "ISI STACK: " + to_string(c.first->position.x) + "," + to_string(c.first->position.y) + " | DISTANCE: " + to_string(c.second) << endl;
     if (c.second >= bestDistance) {
       continue;
     }

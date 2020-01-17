@@ -66,6 +66,25 @@ int planDog(GameInfo &info) {
     }
   }
 
+  // go to the closest treasure opponent can dig (not considering the current pos)
+  for (CellInfo *n: myCell.eightNeighbors) {
+    if (info.revealedTreasure.find(n->position) != info.revealedTreasure.end()) {
+      // The dog is in the cell with known gold
+      bool friendCanDig = false;
+      bool oppCanDig = false;
+      for (CellInfo *p: n->fourNeighbors) {
+        if (p == samuraiCell) friendCanDig = true;
+        else if (p == oppCell) oppCanDig = true;
+      }
+      // If opponent samurai can dig, but friend samurai can't,
+      // then sit there still to prevent opponent's digging.
+      if (oppCanDig && !friendCanDig) {
+        int plan = directionOf(pos, n->position);
+        return plan;
+      }
+    }
+  }
+
   if (info.revealedTreasure.find(pos) != info.revealedTreasure.end()) {
     // The dog is in the cell with known gold
     bool friendCanDig = false;
@@ -130,7 +149,7 @@ int planDog(GameInfo &info) {
         }
 
         int dist = customSamuraiDistance(n, treasure, info.holes) + 1;
-        if(dist < bestDistance && noHolesIn(n->position, info)) {
+        if(dist < bestDistance && noHolesIn(n->position, info) && noAgentsIn(n->position, info)) {
           bestDistance = dist;
           bestPlan = directionOf(myCell.position, n->position);
         }
