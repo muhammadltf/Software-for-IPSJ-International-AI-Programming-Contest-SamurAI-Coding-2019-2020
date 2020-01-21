@@ -26,8 +26,10 @@ static int gatheredInfo(int depth, CellInfo &start, const GameInfo &info) {
 }
 
 int failedCounter;
+int randomCounter = 0;
 
 int planDog(GameInfo &info) {
+  randomCounter++;
   if (info.step == 0) initFieldMap(info);
   int id = info.id;
   int avoidPlan = -2;		  // with certain probability
@@ -186,5 +188,12 @@ int planDog(GameInfo &info) {
     
   }
 
-  return bestPlans[rand()%bestPlans.size()];
+  // int plan = bestPlans.at(rand()%bestPlans.size());
+  if (bestPlans.empty()) {
+    return -1;
+  } else {
+    int size = bestPlans.size();
+    int randomInd = randomCounter%size;
+    return bestPlans.at(randomInd);
+  }
 }
