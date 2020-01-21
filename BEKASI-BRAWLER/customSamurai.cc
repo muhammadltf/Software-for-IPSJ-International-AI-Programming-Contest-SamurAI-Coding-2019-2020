@@ -7,6 +7,7 @@ map<Cell, int> countVisit;
 int failedPlanCounter;
 int dogStandStillCounter;
 set <Cell> forbiddenCells;
+bool treasureMatrix[100][100] = {false};
 
 int planSamurai(GameInfo &info) {
   if (info.step == 0) initFieldMap(info);
@@ -79,6 +80,10 @@ int planSamurai(GameInfo &info) {
     map<Cell, int> extendedTreasures;
     for (auto g: info.revealedTreasure) {
       CellInfo &t = cells[g.first.x][g.first.y];
+      
+      if (!treasureMatrix[g.first.x][g.first.y]) {
+        treasureMatrix[g.first.x][g.first.y] = true;
+      }
       
       for (auto gn: t.eightNeighbors){
         auto treasure = info.revealedTreasure.find(gn->position);
@@ -176,6 +181,22 @@ int planSamurai(GameInfo &info) {
       }
     }
   }
+
+  //NEW STRATEGY 21/01/2020: RANDOM DIGGING
+  for(Cell h: info.holes) {
+    if (!treasureMatrix[h.x][h.y]){
+      treasureMatrix[h.x][h.y] = true;
+    }
+    
+  }
+
+  for (CellInfo* n: myCell.fourNeighbors) {
+    if(!treasureMatrix[n->position.x][n->position.y]) {
+      return directionOf(pos, n->position) + 8;
+    }
+  }
+
+
   // No revealed gold
   // Try to approach the SAMURAI, hoping it to find some gold
   int closest = numeric_limits<int>::max();
