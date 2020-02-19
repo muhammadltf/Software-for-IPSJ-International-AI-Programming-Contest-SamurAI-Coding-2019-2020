@@ -7,6 +7,7 @@ map<Cell, int> countVisit;
 int failedPlanCounter;
 int dogStandStillCounter;
 set <Cell> forbiddenCells;
+Cell lastKnownBestTreasure;
 bool treasureMatrix[100][100] = {false};
 
 int planSamurai(GameInfo &info) {
@@ -151,6 +152,8 @@ int planSamurai(GameInfo &info) {
           }
 
           if (dist <= closest) {
+            
+            lastKnownBestTreasure = g.first;
             if (dist != closest) {
 	            candidates.clear();
 	            closest = dist;
@@ -218,12 +221,32 @@ int planSamurai(GameInfo &info) {
       int dist = customSamuraiDistance(n, destinationInfo, info.holes);
       if (dist < closest) {
 	      int plan  = directionOf(pos, n->position) + (info.holes.count(n->position) == 0 ? 0 : 16);
-        if (plan != avoidPlan) {
+        if (plan != avoidPlan && forbiddenCells.count(n->position) == 0) {
 	        bestPlan = plan;
 	        closest = dist;
 	      }
       }
     }
   }
+
+  if (bestPlan == -1) {
+    int bestDir = directionOf(pos, lastKnownBestTreasure);
+    int bestDir1 = (bestDir - 2) % 8;
+    int bestDir2 = (bestDir + 2) % 8;
+
+    int choice = rand() % 2;
+    if (choice == 0) {
+      bestDir = bestDir1;
+    } else {
+      bestDir = bestDir2;
+    }
+
+    Cell forecastCell = reverseDirectionOf(pos, bestDir);
+    if (info.holes.count(forecastCell) != 0)
+      bestDir = bestDir + 16;
+
+    bestPlan = bestDir;
+  }
+
   return bestPlan;
 }
